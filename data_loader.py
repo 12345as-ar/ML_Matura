@@ -60,7 +60,6 @@ def load_data(db_path, table_name: str = "items", **kwargs) -> pd.DataFrame:
             """,
             conn,
         )
-    df["timestamp"] = pd.to_datetime(df["timestamp"], unit="ms")
     if required_cols:
         missing_cols = set(required_cols) - set(df.columns)
         if missing_cols:
@@ -98,7 +97,6 @@ def load_buy_offers(
             conn,
         )
     print("query done")
-    df["timestamp"] = pd.to_datetime(df["timestamp"], unit="ms")
     if False:
         missing_cols = set(required_cols) - set(df.columns)
         if missing_cols:
@@ -154,6 +152,7 @@ if __name__ == "__main__":
             "buyPrice",
             "sellVolume",
             "buyVolume",
+            "item_id",
         ],
         timespan=(1773771691642, 1773774931625),
     )
