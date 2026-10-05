@@ -65,7 +65,7 @@ class DataCleaner:
         self.start_time = start_time
         self.end_time = end_time
         self.required_cols = required_cols
-        pass
+
 
     def clean_price_time_series(self, df: pd.DataFrame) -> pd.DataFrame:
         df_clean = self._remove_duplicates(df)
@@ -82,6 +82,7 @@ class DataCleaner:
         self.cleaning_report["duplicates removed"] = initial_count - len(
             df_clean
         )
+        df_clean = df_clean.set_index("timestamp")
         return df_clean
 
     def _fill_missing_rows(self, df: pd.DataFrame) -> pd.DataFrame:
