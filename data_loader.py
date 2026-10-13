@@ -3,6 +3,7 @@ import pandas as pd
 from pathlib import Path
 from typing import Optional, List
 import warnings
+import time
 
 
 def validate_database(db_path: Path, table_name: str):
@@ -38,7 +39,7 @@ def validate_data(df: pd.DataFrame):
 def load_data(db_path, table_name: str = "items", **kwargs) -> pd.DataFrame:
     db_path = Path(db_path)
     validate_database(db_path, table_name)
-    timespan = (1773771691642, 1773774931625)
+    timespan = (1773771691642, int(time.time() * 1000))
     required_cols = []
     conditions = []
     if "timespan" in kwargs.keys():
@@ -55,7 +56,7 @@ def load_data(db_path, table_name: str = "items", **kwargs) -> pd.DataFrame:
             JOIN items i ON p.item_id = i.id
             WHERE timestamp <= {timespan[1]}
             AND timestamp  >= {timespan[0]}
-            {" AND ".join(conditions)}
+            {"" if not kwargs["conditions"] else "AND " + " AND ".join(kwargs["conditions"])}
             ORDER BY timestamp ASC
             """,
             conn,

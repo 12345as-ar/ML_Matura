@@ -1,3 +1,4 @@
+from re import X
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
@@ -9,12 +10,12 @@ def persistence(df: pd.DataFrame):
     split = int(len(df) * 0.8)
 
     test = df.iloc[split:]
-    df["previous_price"] = df["price"].shift(1)
-    df.dropna()
+    test["previous_sellPrice"] = test["sellPrice"].shift(1)
+    test = test.dropna()
 
-    X_test = test["previous_price"]
-    y_test = test["price"]
-
+    X_test = test["previous_sellPrice"]
+    y_test = test["sellPrice"]
+    print(X_test, y_test)
     mse = mean_squared_error(y_test, X_test)
     return mse
 
@@ -24,14 +25,17 @@ def linear_regression(df: pd.DataFrame):
 
     train = df.iloc[:split]
     test = df.iloc[split:]
-    df["previous_price"] = df["price"].shift(1)
-    df.dropna()
+    test["previous_sellPrice"] = test["sellPrice"].shift(1)
+    test = test.dropna()
 
-    X_train = train[["previous_price"]]
-    y_train = train["price"]
+    train["previous_sellPrice"] = train["sellPrice"].shift(1)
+    train = train.dropna()
 
-    X_test = test[["previous_price"]]
-    y_test = test["price"]
+    X_train = train[["previous_sellPrice"]]
+    y_train = train["sellPrice"]
+
+    X_test = test[["previous_sellPrice"]]
+    y_test = test["sellPrice"]
 
     model = LinearRegression()
     model.fit(X_train, y_train)
@@ -40,19 +44,3 @@ def linear_regression(df: pd.DataFrame):
 
     mse = mean_squared_error(y_test, y_pred)
     return mse
-
-
-def random_forest(df: pd.DataFrame):
-    pass
-
-def gradient_boosting(df: pd.DataFrame):
-    pass
-
-def arima(df: pd.DataFrame):
-    pass
-
-def lstm(df: pd.DataFrame):
-    pass
-
-def transformer(df: pd.DataFrame):
-    pass

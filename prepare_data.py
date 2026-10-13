@@ -72,6 +72,7 @@ class DataCleaner:
         df_clean = df_clean.dropna()
         df_clean = self._fill_missing_rows(df_clean)
         df_clean = self._interpolate_prices(df_clean)
+        df_clean = df_clean.set_index("timestamp")
         return df_clean
 
     def _remove_duplicates(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -82,7 +83,6 @@ class DataCleaner:
         self.cleaning_report["duplicates removed"] = initial_count - len(
             df_clean
         )
-        df_clean = df_clean.set_index("timestamp")
         return df_clean
 
     def _fill_missing_rows(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -100,7 +100,8 @@ class DataCleaner:
                             if col == "timestamp":
                                 new_row["timestamp"] = time
                             elif col in [
-                                "price",
+                                "buyPrice",
+                                "sellPrice",
                                 "buyVolume",
                                 "sellVolume",
                                 "volume",
