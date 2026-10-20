@@ -131,6 +131,16 @@ class DataCleaner:
             return df_clean
         return df
 
+    def _moving_average(self, df:pd.DataFrame, window=60, columns=["sellPrice", "buyPrice"]) -> pd.DataFrame:
+        df = df.sort_values("timestamp")
+        for column in df.columns:
+            if column in columns:
+                df[column] = df.groupby("item_id")[
+                    column
+                ].rolling(window=window, min_periods=window
+                ).mean()
+        return df
+          
 
 if __name__ == "__main__":
     print("hello")

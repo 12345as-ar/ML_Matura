@@ -7,7 +7,7 @@ def plot_time_series(df: pd.DataFrame, variable: str, items: list):
     for item in items:
         dfi = df[df["name"] == item]
         if not ax:
-            ax = dfi["price"].plot(label=item)
+            ax = dfi["sellPrice"].plot(label=item)
         else:
             dfi["price"].plot(ax=ax, label=item)
     ax.set_xlabel("timestamp")
@@ -15,5 +15,4 @@ def plot_time_series(df: pd.DataFrame, variable: str, items: list):
     ax.set_title(variable + " over time")
     ax.legend()
     plt.show()
-
 

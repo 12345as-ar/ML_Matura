@@ -9,7 +9,7 @@ from sklearn.metrics import mean_squared_error
 def persistence(df: pd.DataFrame):
     split = int(len(df) * 0.8)
 
-    test = df.iloc[split:]
+    test = df.iloc[split:].copy()
     test["previous_sellPrice"] = test["sellPrice"].shift(1)
     test = test.dropna()
 
@@ -20,21 +20,24 @@ def persistence(df: pd.DataFrame):
     return mse
 
 
-def linear_regression(df: pd.DataFrame):
+def linear_regression(df: pd.DataFrame, previous_prices=5):
     split = int(len(df) * 0.8)
 
-    train = df.iloc[:split]
-    test = df.iloc[split:]
-    test["previous_sellPrice"] = test["sellPrice"].shift(1)
+    train = df.iloc[:split].copy()
+    test = df.iloc[split:].copy()
+    prices = []
+    for i in range(previous_prices):
+        test["previous_sellPrice"+str(i)] = test["sellPrice"].shift(i)
+        train["previous_sellPrice"+str(i)] = train["sellPrice"].shift(i)
+        prices.append("previous_sellPrice"+str(i))
     test = test.dropna()
 
-    train["previous_sellPrice"] = train["sellPrice"].shift(1)
     train = train.dropna()
 
-    X_train = train[["previous_sellPrice"]]
+    X_train = train[prices]
     y_train = train["sellPrice"]
 
-    X_test = test[["previous_sellPrice"]]
+    X_test = test[prices]
     y_test = test["sellPrice"]
 
     model = LinearRegression()
