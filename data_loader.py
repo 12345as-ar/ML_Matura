@@ -10,7 +10,7 @@ def validate_database(db_path: Path, table_name: str):
     """Validate that database and table exists"""
     if not db_path.exists():
         raise FileNotFoundError(f"Database not found: {db_path}")
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
     cur = conn.cursor()
     cur.execute(
         f"SELECT name FROM sqlite_master WHERE type='table' AND name=?",
@@ -19,7 +19,6 @@ def validate_database(db_path: Path, table_name: str):
     if not cur.fetchone():
         raise ValueError(f"Table '{table_name}' not found")
     cur.execute("PRAGMA table_info(items)")
-    print(cur.fetchall())
 
 
 def validate_data(df: pd.DataFrame):
@@ -39,11 +38,11 @@ def validate_data(df: pd.DataFrame):
 def load_data(db_path, table_name: str = "items", **kwargs) -> pd.DataFrame:
     db_path = Path(db_path)
     validate_database(db_path, table_name)
-    timespan = (1773771691642, int(time.time() * 1000))
+    timespan = (0, 1893039642827)
     required_cols = []
     conditions = []
-    if "timespan" in kwargs.keys():
-        timespan = kwargs["timespan"]
+    #if "timespan" in kwargs.keys():
+    #    timespan = kwargs["timespan"]
     if "required_cols" in kwargs.keys():
         required_cols = kwargs["required_cols"]
     if "conditions" in kwargs.keys():
@@ -56,7 +55,7 @@ def load_data(db_path, table_name: str = "items", **kwargs) -> pd.DataFrame:
             JOIN items i ON p.item_id = i.id
             WHERE timestamp <= {timespan[1]}
             AND timestamp  >= {timespan[0]}
-            {"" if not kwargs["conditions"] else "AND " + " AND ".join(kwargs["conditions"])}
+            {"" if not kwargs.get("conditions") else "AND " + " AND ".join(kwargs["conditions"])}
             ORDER BY timestamp ASC
             """,
             conn,
@@ -76,7 +75,7 @@ def load_buy_offers(
     db_path = Path(db_path)
     for name in table_names:
         validate_database(db_path, name)
-    timespan = (1773771691642, 1773774931625)
+    timespan = (1773771691642, 1873774931625)
     required_cols = []
     conditions = []
     limit = 0
@@ -113,7 +112,7 @@ def load_sell_offers(
     db_path = Path(db_path)
     for name in table_names:
         validate_database(db_path, name)
-    timespan = (1773771691642, 1773774931625)
+    timespan = (0, 1873774931625)
     required_cols = []
     conditions = []
     limit = 0
@@ -146,22 +145,19 @@ def load_sell_offers(
 
 if __name__ == "__main__":
     df = load_data(
-        "/home/oliver/rndm/bz/bazaar3.db",
+        "/home/oliver/projects/skyblock/bazaar_collector_py/bazaar.db",
         required_cols=[
             "timestamp",
             "sellPrice",
-            "buyPrice",
-            "sellVolume",
-            "buyVolume",
             "item_id",
         ],
-        timespan=(1773771691642, 1773774931625),
+        conditions=["name = 'TARANTULA_WEB'"]
     )
     print(df[df["name"] == "TARANTULA_WEB"])
+    exit()
     df = load_buy_offers(
         "/home/oliver/rndm/bz/bazaar3.db",
         required_cols=["timestamp", "price", "volume"],
-        timespan=(1773771691642, 1773774931625),
         conditions=["name = 'TARANTULA_WEB'"],
         limit=10000,
     )
@@ -169,7 +165,6 @@ if __name__ == "__main__":
     df = load_sell_offers(
         "/home/oliver/rndm/bz/bazaar3.db",
         required_cols=["timestamp", "price", "volume"],
-        timespan=(1773771691642, 1773774931625),
         conditions=["name = 'TARANTULA_WEB'"],
         limit=10000,
     )

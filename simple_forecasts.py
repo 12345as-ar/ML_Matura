@@ -12,10 +12,9 @@ def persistence(df: pd.DataFrame):
     test = df.iloc[split:].copy()
     test["previous_sellPrice"] = test["sellPrice"].shift(1)
     test = test.dropna()
-
+ 
     X_test = test["previous_sellPrice"]
     y_test = test["sellPrice"]
-    print(X_test, y_test)
     mse = mean_squared_error(y_test, X_test)
     return mse
 
@@ -26,7 +25,7 @@ def linear_regression(df: pd.DataFrame, previous_prices=5):
     train = df.iloc[:split].copy()
     test = df.iloc[split:].copy()
     prices = []
-    for i in range(previous_prices):
+    for i in range(1, previous_prices + 1):
         test["previous_sellPrice"+str(i)] = test["sellPrice"].shift(i)
         train["previous_sellPrice"+str(i)] = train["sellPrice"].shift(i)
         prices.append("previous_sellPrice"+str(i))
@@ -39,7 +38,6 @@ def linear_regression(df: pd.DataFrame, previous_prices=5):
 
     X_test = test[prices]
     y_test = test["sellPrice"]
-
     model = LinearRegression()
     model.fit(X_train, y_train)
 
